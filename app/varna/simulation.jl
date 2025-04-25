@@ -21,7 +21,7 @@ using FjordsSim: coupled_hydrostatic_simulation, progress
 include("setup.jl")
 
 ## Model Setup
-sim_setup = setup_region_3d()
+sim_setup = setup_region_3d_OXYDEP()
 
 coupled_simulation = coupled_hydrostatic_simulation(sim_setup)
 
@@ -29,11 +29,11 @@ coupled_simulation.callbacks[:progress] = Callback(progress, TimeInterval(3hours
 
 ocean_sim = coupled_simulation.model.ocean
 ocean_model = ocean_sim.model
-prefix = joinpath(sim_setup.results_dir, "snapshots_ocean")
+prefix = joinpath(sim_setup.results_dir, "Varna_NUT2_DOM1")
 ocean_sim.output_writers[:ocean] = JLD2OutputWriter(
     ocean_model,
     merge(ocean_model.tracers, ocean_model.velocities);
-    schedule = TimeInterval(1hours),
+    schedule = TimeInterval(1days),
     filename = "$prefix.jld2",
     overwrite_existing = true,
     array_type = Array{Float32},

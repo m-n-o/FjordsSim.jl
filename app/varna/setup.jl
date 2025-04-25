@@ -82,7 +82,7 @@ function setup_region(;
     grid_args = (
         arch = GPU(),
         halo = (7, 7, 7),
-        filepath = joinpath(homedir(), "FjordsSim_data", "varna", "Varna_topo_channels.jld2"),
+        filepath = joinpath("/home", "share", "data", "input", "Fjordssim", "Varna", "Varna_topo_channels.jld2"),
         latitude = (43.177, 43.214),
         longitude = (27.640, 27.947),
     ),
@@ -111,7 +111,7 @@ function setup_region(;
     # forcing_callable = NamedTuple,
     forcing_args = (
         grid_ref = grid_ref,
-        filepath = joinpath(homedir(), "FjordsSim_data", "varna", "Varna_bry.nc"),
+        filepath = joinpath("/home", "share", "data", "input", "Fjordssim", "Varna", "Varna_bry.nc"),
         tracers = tracers,
     ),
     # forcing_args = (),
@@ -145,7 +145,7 @@ function setup_region(;
     biogeochemistry_callable = nothing,
     biogeochemistry_args = (nothing,),
     # Output folder
-    results_dir = joinpath(homedir(), "FjordsSim_results", "varna"),
+    results_dir = joinpath("/home", "share", "data", "output", "Fjordssim", "Varna"),
 )
 
     return SetupModel(
