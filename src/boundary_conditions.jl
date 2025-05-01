@@ -70,7 +70,7 @@ end
 
 # OXYDEP constants
 const O2_suboxic = 15.0  # OXY threshold for oxic/suboxic switch (mmol/m3)
-const Trel = 75000.0    #25000.0 #10000.0     # Relaxation time for exchange with the sediments (s/m)
+const Trel = 50000.0    #25000.0 #10000.0     # Relaxation time for exchange with the sediments (s/m)
 const b_ox = 15.0        # difference of OXY in the sediment and water, 
 const b_NUT = 10.0       # NUT in the sediment, (mmol/m3)  
 const b_DOM_ox = 6.0     # OM in the sediment (oxic conditions), (mmol/m3) 

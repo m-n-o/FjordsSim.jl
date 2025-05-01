@@ -11,7 +11,6 @@ using FjordsSim:
     plot_ztime,
     record_bottom_tracer,
     record_vertical_diff,
-    plot_vertical_tracer,
     plot_bottom_tracer,
     plot_surface_tracer,
     plot_ratio_above_thresh,
@@ -36,8 +35,13 @@ grid_from_setup = sim_setup.grid_callable(grid_args...).underlying_grid
 z = znodes(grid_from_setup, Center())
 Nz = grid_from_setup.Nz
 
-folder = joinpath("/home", "share", "data", "output", "Fjordssim", "Varna")
-filename = joinpath(folder, "Varna_NUT2_DOM1")  #ok
+folder = joinpath(homedir(), "FjordsSim_results", "varna")
+#filename = joinpath(folder, "pn30d40n00d00")  #ok
+#filename = joinpath(folder, "pn30d40n01d02")  #ok
+filename = joinpath(folder, "pn60d80n01d02")  #ok
+#filename = joinpath(folder, "n30d40n01n02")  #ok
+#filename = joinpath(folder, "n30d40n00_5d01")  #ok
+#filename = joinpath(folder, "n30d40n00d00")  #ok
 
 T = FieldTimeSeries("$filename.jld2", "T")
 S = FieldTimeSeries("$filename.jld2", "S")
@@ -98,39 +102,28 @@ end
 #  vertical distributions changes in a point
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 plot_ztime(NUT, O₂, O₂_relat, PHY, HET, T, DOM, POM, S, 84, 14, times, z, folder)
-# plot_ztime(NUT, O₂, O₂_relat, PHY, HET, T, DOM, POM, S, 18, 18, times, z, folder)
+plot_ztime(NUT, O₂, O₂_relat, PHY, HET, T, DOM, POM, S, 18, 18, times, z, folder)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # maps at  selected time 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 plotday = 224
 plot_surface_tracer(NUT, "NUT", Nz, times, plotday, folder; colorrange = (0, 40),  colormap = Reverse(:cherry), )
-# plot_surface_tracer(PHY, "PHY", Nz, times, plotday, folder; colorrange = (0, 5),   colormap = Reverse(:cubehelix), )
-# plot_surface_tracer(HET, "HET", Nz, times, plotday, folder; colorrange = (0, 20),  colormap = Reverse(:afmhot), )
-# plot_surface_tracer(POM, "POM", Nz, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:greenbrownterrain), )
-# plot_surface_tracer(DOM, "DOM", Nz, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:CMRmap), )
-# plot_surface_tracer(O₂,   "O₂", Nz, times, plotday, folder; colorrange = (0, 350), colormap = :turbo, )
-# plot_surface_tracer(O₂_relat, "O₂_%", Nz, times, plotday, folder; colorrange = (0, 120),colormap = :gist_stern, )
+plot_surface_tracer(PHY, "PHY", Nz, times, plotday, folder; colorrange = (0, 7),   colormap = Reverse(:cubehelix), )
+plot_surface_tracer(HET, "HET", Nz, times, plotday, folder; colorrange = (0, 5),  colormap = Reverse(:afmhot), )
+plot_surface_tracer(POM, "POM", Nz, times, plotday, folder; colorrange = (0, 5),  colormap = Reverse(:greenbrownterrain), )
+plot_surface_tracer(DOM, "DOM", Nz, times, plotday, folder; colorrange = (0, 40),  colormap = Reverse(:CMRmap), )
+plot_surface_tracer(O₂,   "O₂", Nz, times, plotday, folder; colorrange = (0, 350), colormap = :turbo, )
+plot_surface_tracer(O₂_relat, "O₂_%", Nz, times, plotday, folder; colorrange = (0, 120),colormap = :gist_stern, )
 
-plot_bottom_tracer(NUT, "NUT", bottom_z, times, plotday, folder; colorrange = (0, 40),  colormap = Reverse(:cherry), )
-# plot_bottom_tracer(PHY, "PHY", bottom_z, times, plotday, folder; colorrange = (0, 5),   colormap = Reverse(:cubehelix), )
-# plot_bottom_tracer(HET, "HET", bottom_z, times, plotday, folder; colorrange = (0, 20),  colormap = Reverse(:afmhot), )
-# plot_bottom_tracer(POM, "POM", bottom_z, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:greenbrownterrain), )
-# plot_bottom_tracer(DOM, "DOM", bottom_z, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:CMRmap), )
-# plot_bottom_tracer(O₂,   "O₂", bottom_z, times, plotday, folder; colorrange = (0, 350), colormap = :turbo, )
-# plot_bottom_tracer(O₂_relat, "O₂_%", bottom_z, times, plotday, folder; colorrange = (0, 120),colormap = :gist_stern, )
+plot_bottom_tracer(NUT, "NUT", bottom_z, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:cherry), )
+plot_bottom_tracer(PHY, "PHY", bottom_z, times, plotday, folder; colorrange = (0, 7),   colormap = Reverse(:cubehelix), )
+plot_bottom_tracer(HET, "HET", bottom_z, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:afmhot), )
+plot_bottom_tracer(POM, "POM", bottom_z, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:greenbrownterrain), )
+plot_bottom_tracer(DOM, "DOM", bottom_z, times, plotday, folder; colorrange = (0, 50),  colormap = Reverse(:CMRmap), )
+plot_bottom_tracer(O₂,   "O₂", bottom_z, times, plotday, folder; colorrange = (0, 350), colormap = :turbo, )
+plot_bottom_tracer(O₂_relat, "O₂_%", bottom_z, times, plotday, folder; colorrange = (0, 120),colormap = :gist_stern, )
 
-plot_vertical_tracer(
-    T,
-    'T',
-    bathy_file["z_faces"],
-    18,
-    160,
-    folder,
-    "Tprofile",
-    colorrange = (5, 20),
-    colormap = Reverse(:RdYlBu),
-)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 #  Oxygen depletion plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,21 +145,32 @@ plot_ratio_above_thresh(O₂, "O₂", bottom_z, 128, 147, times, folder)
 # record_bottom_tracer(O₂, "Oxygen", Nz, O₂.times, folder)
 # println(keys(grid["underlying_grid"]))
 # println(grid["underlying_grid"]["Δyᶠᶜᵃ"])
-record_surface_speed(u, v, Nz, times, folder)
+ record_surface_speed(u, v, Nz, times, folder)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 #  HORIZONTAL animations bottom
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# record_bottom_tracer(
-#     O₂,
-#     "O₂",
-#     bottom_z,
-#     times,
-#     folder,
-#     colorrange = (0, 350),
-#     colormap = :turbo,
-#     figsize = (1000, 400)
-# )
+record_bottom_tracer(
+    O₂,
+    "O₂",
+    bottom_z,
+    times,
+    folder,
+    colorrange = (0, 350),
+    colormap = :turbo,
+    figsize = (1000, 400)
+)
+
+record_bottom_tracer(
+    HET,
+    "HET",
+    bottom_z,
+    times,
+    folder,
+    colorrange = (0, 50),
+    colormap =  Reverse(:afmhot),
+    figsize = (1000, 400)
+)
 
 record_bottom_tracer(
     O₂_relat,
@@ -179,134 +183,134 @@ record_bottom_tracer(
     figsize = (1000, 400)
 )
 
-# # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# #  HORIZONTAL animations surface
-# # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# # record_horizontal_tracer(
-# #     C,
-# #     times,
-# #     folder,
-# #     "Contsurf",
-# #     "Contaminant (% of max. concentration)",
-# #     colorrange = (0, 100),
-# #     colormap = :matter,
-# #     iz = Nz,
-# # )
-
-record_horizontal_tracer(
-    T,
-    times,
-    folder,
-    "Tsurf",
-    "Temperature (°C)",
-    colorrange = (5, 40),
-    colormap = Reverse(:RdYlBu),
-    iz = Nz,
-)
-
-# # record_horizontal_tracer(
-# #     S,
-# #     times,
-# #     folder,
-# #     "Ssurf",
-# #     "Salinity (PSU)",
-# #     iz = Nz,
-# #     colorrange = (0, 17),
-# #     colormap = :viridis,
-# # )
-
-#  record_horizontal_tracer(
-#      O₂,
-#      times,
-#      folder,
-#      "O2surf",
-#      "Dissolved oxygen (μM)",
-#      colorrange = (0, 350),
-#      colormap = :turbo,
-#      iz = Nz,
-#  )
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+#  HORIZONTAL animations surface
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # record_horizontal_tracer(
-#     O₂_relat,
+#     C,
 #     times,
 #     folder,
-#     "O₂_relat_surf",
-#     "%",
-#     iz = 20,
-#     colorrange = (0, 110),
-#     colormap = :gist_stern,
+#     "Contsurf",
+#     "Contaminant (% of max. concentration)",
+#     colorrange = (0, 100),
+#     colormap = :matter,
+#     iz = Nz,
 # )
 
-#  record_horizontal_tracer(
-#      NUT,
-#      times,
-#      folder,
-#      "NUTsurf",
-#      "Nutrients (μM N)",
-#      colorrange = (0, 25),
-#      colormap = Reverse(:cherry),
-#      iz = Nz,
-#  )
+# record_horizontal_tracer(
+#     T,
+#     times,
+#     folder,
+#     "Tsurf",
+#     "Temperature (°C)",
+#     colorrange = (5, 40),
+#     colormap = Reverse(:RdYlBu),
+#     iz = Nz,
+# )
 
-#  record_horizontal_tracer(
-#      PHY,
-#      times,
-#      folder,
-#      "PHYsurf",
-#      "Phytoplankton (μM N)",
-#      colorrange = (0, 5),
-#      colormap = Reverse(:cubehelix),
-#      iz = Nz,
-#  )
+# record_horizontal_tracer(
+#     S,
+#     times,
+#     folder,
+#     "Ssurf",
+#     "Salinity (PSU)",
+#     iz = Nz,
+#     colorrange = (0, 17),
+#     colormap = :viridis,
+# )
 
-#  record_horizontal_tracer(
-#      HET,
-#      times,
-#      folder,
-#      "HETsurf",
-#      "Heterotrophs (μM N)",
-#      colorrange = (0, 5),
-#      colormap = Reverse(:afmhot),
-#      iz = Nz,
-#  )
+ record_horizontal_tracer(
+     O₂,
+     times,
+     folder,
+     "O2surf",
+     "Dissolved oxygen (μM)",
+     colorrange = (0, 350),
+     colormap = :turbo,
+     iz = Nz,
+ )
 
-#  record_horizontal_tracer(
-#      DOM,
-#      times,
-#      folder,
-#      "DOMsurf10",
-#      "DOM (μM N)",
-#      colorrange = (0, 50),
-#      colormap = Reverse(:CMRmap),
-#      iz = Nz,
-#  )
+record_horizontal_tracer(
+    O₂_relat,
+    times,
+    folder,
+    "O₂_relat_surf",
+    "%",
+    iz = 20,
+    colorrange = (0, 110),
+    colormap = :gist_stern,
+)
 
-#  record_horizontal_tracer(
-#      POM,
-#      times,
-#      folder,
-#      "POMsurf10",
-#      "POM (μM N)",
-#      colorrange = (0, 50),
-#      colormap = Reverse(:greenbrownterrain),
-#      iz = Nz,
-#  )
+ record_horizontal_tracer(
+     NUT,
+     times,
+     folder,
+     "NUTsurf",
+     "Nutrients (μM N)",
+     colorrange = (0, 25),
+     colormap = Reverse(:cherry),
+     iz = Nz,
+ )
+
+ record_horizontal_tracer(
+     PHY,
+     times,
+     folder,
+     "PHYsurf",
+     "Phytoplankton (μM N)",
+     colorrange = (0, 5),
+     colormap = Reverse(:cubehelix),
+     iz = Nz,
+ )
+
+ record_horizontal_tracer(
+     HET,
+     times,
+     folder,
+     "HETsurf",
+     "Heterotrophs (μM N)",
+     colorrange = (0, 5),
+     colormap = Reverse(:afmhot),
+     iz = Nz,
+ )
+
+ record_horizontal_tracer(
+     DOM,
+     times,
+     folder,
+     "DOMsurf10",
+     "DOM (μM N)",
+     colorrange = (0, 50),
+     colormap = Reverse(:CMRmap),
+     iz = Nz,
+ )
+
+ record_horizontal_tracer(
+     POM,
+     times,
+     folder,
+     "POMsurf10",
+     "POM (μM N)",
+     colorrange = (0, 50),
+     colormap = Reverse(:greenbrownterrain),
+     iz = Nz,
+ )
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # VERTICAL animations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-record_vertical_tracer(
-    T,
-    z,
-    18,
-    times,
-    folder,
-    "Tprofile",
-    "Temperature (°C)",
-    colorrange = (5, 40),
-    colormap = Reverse(:RdYlBu),
-)
+# record_vertical_tracer(
+#     T,
+#     z,
+#     18,
+#     times,
+#     folder,
+#     "Tprofile",
+#     "Temperature (°C)",
+#     colorrange = (5, 40),
+#     colormap = Reverse(:RdYlBu),
+# )
 
 # record_vertical_tracer(
 #     u,
@@ -371,39 +375,39 @@ record_vertical_tracer(
 #     colormap = Reverse(:greenbrownterrain),
 # )
 
-#  record_vertical_tracer(
-#      NUT,
-#      z,
-#      18,
-#      times,
-#      folder,
-#      "NUTprofile",
-#      "Nutrients (μM N)",
-#      colorrange = (0, 25),
-#      colormap = Reverse(:cherry),
-#  )
+ record_vertical_tracer(
+     NUT,
+     z,
+     18,
+     times,
+     folder,
+     "NUTprofile",
+     "Nutrients (μM N)",
+     colorrange = (0, 25),
+     colormap = Reverse(:cherry),
+ )
 
-#  record_vertical_tracer(
-#      O₂,
-#      z,
-#      18,
-#      times,
-#      folder,
-#      "O2profile",
-#      "Dissolved Oxygen (μM)",
-#      colorrange = (0, 350),
-#      colormap = :turbo,
-#  )
+ record_vertical_tracer(
+     O₂,
+     z,
+     18,
+     times,
+     folder,
+     "O2profile",
+     "Dissolved Oxygen (μM)",
+     colorrange = (0, 350),
+     colormap = :turbo,
+ )
 
-# record_vertical_tracer(
-#     O₂_relat,
-#     z,
-#     18,
-#     times,
-#     folder,
-#     "O₂_relat_profile",
-#     "O₂ relative (%)",
-#     colorrange = (0, 110),
-#     colormap = :gist_stern,
-# )
+record_vertical_tracer(
+    O₂_relat,
+    z,
+    18,
+    times,
+    folder,
+    "O₂_relat_profile",
+    "O₂ relative (%)",
+    colorrange = (0, 110),
+    colormap = :gist_stern,
+)
 

@@ -2,6 +2,13 @@ using CairoMakie: Axis, Figure, Colorbar, Observable, Reverse, record, heatmap!,
 using FileIO: save
 using Oceananigans.Fields: Field, interior, compute!
 
+
+map_axis_kwargs = (xlabel = "Grid points, East", ylabel = "Grid points, North")
+transect_axis_kwargs = (xlabel = "Grid points, East", ylabel = "z (m)")
+framerate = 12
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# FUNCTIONS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 function plot_1d_phys(T, S, z, times, folder, x, y)
     fig = Figure(size = (1000, 400), fontsize = 20)
@@ -12,16 +19,13 @@ function plot_1d_phys(T, S, z, times, folder, x, y)
     hmT = heatmap!(times / days, z, interior(T, x, y, :, :)', colormap = Reverse(:RdYlBu))
     Colorbar(fig[1, 2], hmT)
 
-    Axis(fig[2, 1]; title = "S, psu", axis_kwargs...)
+    Axis(fig[2, 1]; title = "S, ‰", axis_kwargs...)
     hmS = heatmap!(times / days, z, interior(S, x, y, :, :)', colormap = Reverse(:RdYlBu))
     Colorbar(fig[2, 2], hmS)
 
-    save(joinpath(folder, "1d_phys.png"), fig)
+    save(joinpath(folder, "phys_1d.png"), fig)
+    @info "phys_1d plot made"
 end
-
-map_axis_kwargs = (xlabel = "Grid points, eastward direction", ylabel = "Grid points, northward direction")
-transect_axis_kwargs = (xlabel = "Grid points, eastward direction", ylabel = "z (m)")
-framerate = 12
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 function record_surface_speed(u, v, Nz, times, folder; colorrange = (0, 0.5), colormap = :deep)
@@ -41,13 +45,15 @@ function record_surface_speed(u, v, Nz, times, folder; colorrange = (0, 0.5), co
 
     title = @lift "Surface speed at " * prettytime(times[$iter])
     ax = Axis(fig[1, 1]; title = title, map_axis_kwargs...)
-    hm = heatmap!(ax, si, colorrange = colorrange, colormap = colormap)
+    hm = heatmap!(ax, si, colorrange = colorrange, colormap = colormap, nan_color = :silver)
     cb = Colorbar(fig[0, 1], hm, vertical = false, label = "Surface speed (ms⁻¹)")
     # hidedecorations!(ax)
 
     record(fig, joinpath(folder, "surface_speed.gif"), 1:Nt, framerate = framerate) do i
         iter[] = i
     end
+
+    @info "surface_speed record made"
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,16 +77,18 @@ function record_bottom_tracer(
         Ti
     end
 
-    title = @lift "bottom $(var_name), mmol/m³ at " * prettytime(times[$iter])
+    title = @lift "bottom $(var_name), μM at " * prettytime(times[$iter])
     fig = Figure(size = figsize)
     ax = Axis(fig[1, 1]; title = title, map_axis_kwargs...)
-    hm = heatmap!(ax, Ti, colorrange = colorrange, colormap = colormap)
-    cb = Colorbar(fig[0, 1], hm, vertical = false, label = "$(var_name), mmol/m³")
+    hm = heatmap!(ax, Ti, colorrange = colorrange, colormap = colormap, nan_color = :silver)
+    cb = Colorbar(fig[0, 1], hm, vertical = false) #, label = "$(var_name), μM")
 
     Nt = length(times)
-    record(fig, joinpath(folder, "bottom_$(var_name).gif"), 1:Nt, framerate = framerate) do i
+    record(fig, joinpath(folder, "$(var_name)_bottom.gif"), 1:Nt, framerate = framerate) do i
         iter[] = i
     end
+
+    @info "$(var_name)_bottom record made"
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,13 +109,15 @@ function record_horizontal_tracer(tracer, times, folder, name, label; colorrange
     title = @lift label * " at " * prettytime(times[$iter])
     fig = Figure(size = (1000, 400))
     ax = Axis(fig[1, 1]; title = title, map_axis_kwargs...)
-    hm = heatmap!(ax, Ti, colorrange = colorrange, colormap = colormap)
-    cb = Colorbar(fig[0, 1], hm, vertical = false, label = label)
+    hm = heatmap!(ax, Ti, colorrange = colorrange, colormap = colormap, nan_color = :silver)
+    cb = Colorbar(fig[0, 1], hm, vertical = false ) #, label = nothing)
     # hidedecorations!(ax)
 
-    record(fig, joinpath(folder, "$(name).gif"), 1:Nt, framerate = framerate) do i
+    record(fig, joinpath(folder, "$(name)_map_$iz.gif"), 1:Nt, framerate = framerate) do i
         iter[] = i
     end
+
+    @info "$(name)_map_$iz record made"
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,13 +141,14 @@ function record_vertical_tracer(tracer, depth, iy, times, folder, name, label; c
 
     title = @lift label * " at " * prettytime(times[$iter])
     ax = Axis(fig[1, 1]; title = title, transect_axis_kwargs...)
-    hm = heatmap!(ax, xs, depth, Ti, colorrange = colorrange, colormap = colormap)
-    cb = Colorbar(fig[0, 1], hm, vertical = false, label = label)
+    hm = heatmap!(ax, xs, depth, Ti, colorrange = colorrange, colormap = colormap, nan_color = :silver)
+    cb = Colorbar(fig[0, 1], hm, vertical = false) #, label = nothing) # label = label)
     # hidedecorations!(ax)
 
-    record(fig, joinpath(folder, "$(name).gif"), 1:Nt, framerate = framerate) do i
+    record(fig, joinpath(folder, "$(name)_transect_$iy.gif"), 1:Nt, framerate = framerate) do i
         iter[] = i
     end
+    @info "$(name)_transect_$iy record made"
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,13 +181,16 @@ function record_vertical_tracer_points(
 
     title = @lift label * " at " * prettytime(times[$iter])
     ax = Axis(fig[1, 1]; title = title, transect_axis_kwargs...)
-    hm = heatmap!(ax, xs, depth, Ti, colorrange = colorrange, colormap = colormap)
+    hm = heatmap!(ax, xs, depth, Ti, colorrange = colorrange, colormap = colormap, nan_color = :silver)
     cb = Colorbar(fig[0, 1], hm, vertical = false, label = label)
     # hidedecorations!(ax)
 
-    record(fig, joinpath(folder, "$(name).gif"), 1:Nt, framerate = framerate) do i
+    record(fig, joinpath(folder, "$(name)_transect.gif"), 1:Nt, framerate = framerate) do i
         iter[] = i
     end
+
+    @info "$(name)_transect record made"
+
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,32 +220,35 @@ function record_vertical_diff(
 
     title = @lift label * " at " * prettytime(times[$iter])
     ax = Axis(fig[1, 1]; title = title, transect_axis_kwargs...)
-    hm = heatmap!(ax, xs, depth, Ti, colorrange = colorrange, colormap = colormap)
+    hm = heatmap!(ax, xs, depth, Ti, colorrange = colorrange, colormap = colormap, nan_color = :silver)
     cb = Colorbar(fig[0, 1], hm, vertical = false, label = label)
     # hidedecorations!(ax)
 
-    record(fig, joinpath(folder, "$(name).gif"), 1:Nt, framerate = framerate) do i
+    record(fig, joinpath(folder, "$(name)_diff_transect.gif"), 1:Nt, framerate = framerate) do i
         iter[] = i
     end
+
+    @info "$(name)_diff_transect_$iy record made"
+
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 function plot_ztime(NUT, O₂, O₂_relative, PHY, HET, T, DOM, POM, S, i, j, times, z, folder)
 
-    fig = Figure(size = (1500, 1000), fontsize = 20)
+    fig = Figure(size = (1300, 700), fontsize = 20)
 
     axis_kwargs = (
         xlabel = "Time (days)",
         ylabel = "z (m)",
-        xticks = (0:50:times[end]),
+        xticks = (0:60:times[end]),
         xtickformat = "{:.0f}", #   values -> ["$(value)kg" for value in values]     
     )
 
-    axNUT = Axis(fig[1, 1]; title = "NUT, mmolN/m³", axis_kwargs...)
+    axNUT = Axis(fig[1, 1]; title = "NUT, μM N", axis_kwargs...)
     hmNUT = heatmap!(times / days, z, interior(NUT, i, j, :, :)', colormap = Reverse(:cherry))
     Colorbar(fig[1, 2], hmNUT)
 
-    axOXY = Axis(fig[1, 3]; title = "O₂, mmol/m³", axis_kwargs...)
+    axOXY = Axis(fig[1, 3]; title = "O₂, μM", axis_kwargs...)
     hmOXY = heatmap!(times / days, z, interior(O₂, i, j, :, :)', colormap = :turbo)
     Colorbar(fig[1, 4], hmOXY)
     
@@ -239,53 +256,66 @@ function plot_ztime(NUT, O₂, O₂_relative, PHY, HET, T, DOM, POM, S, i, j, ti
     hmOXY_rel = heatmap!(times / days, z, O₂_relative[i, j, :, :]', colormap = :gist_stern)
     Colorbar(fig[1, 6], hmOXY_rel)
 
-    axPHY = Axis(fig[2, 1]; title = "PHY, mmolN/m³", axis_kwargs...)
+    axPHY = Axis(fig[2, 1]; title = "PHY, μM N", axis_kwargs...)
     hmPHY = heatmap!(times / days, z, interior(PHY, i, j, :, :)', colormap = Reverse(:cubehelix)) #(:davos10))
     Colorbar(fig[2, 2], hmPHY)
 
-    axHET = Axis(fig[2, 3]; title = "HET, mmolN/m³", axis_kwargs...)
+    axHET = Axis(fig[2, 3]; title = "HET, μM N", axis_kwargs...)
     hmHET = heatmap!(times / days, z, interior(HET, i, j, :, :)', colormap = Reverse(:afmhot))
     Colorbar(fig[2, 4], hmHET)
 
-    axT = Axis(fig[2, 5]; title = "T, oC", axis_kwargs...)
+    axT = Axis(fig[2, 5]; title = "T, °C", axis_kwargs...)
     hmT = heatmap!(times / days, z, interior(T, i, j, :, :)', colormap = Reverse(:RdYlBu))
     Colorbar(fig[2, 6], hmT)
 
-    axDOM = Axis(fig[3, 1]; title = "DOM, mmolN/m³", axis_kwargs...)
+    axDOM = Axis(fig[3, 1]; title = "DOM, μM N", axis_kwargs...)
     hmDOM = heatmap!(times / days, z, interior(DOM, i, j, :, :)', colormap = Reverse(:CMRmap)) #(:devon10))
     Colorbar(fig[3, 2], hmDOM)
 
-    axPOM = Axis(fig[3, 3]; title = "POM, mmolN/m³", axis_kwargs...)
+    axPOM = Axis(fig[3, 3]; title = "POM, μM N", axis_kwargs...)
     hmPOM = heatmap!(times / days, z, interior(POM, i, j, :, :)', colormap = Reverse(:greenbrownterrain)) #(:bilbao25))
     Colorbar(fig[3, 4], hmPOM)
 
-    axS = Axis(fig[3, 5]; title = "S, psu", axis_kwargs...)
+    axS = Axis(fig[3, 5]; title = "S, ‰", axis_kwargs...)
     hmS = heatmap!(times / days, z, interior(S, i, j, :, :)', colormap = :viridis)
     Colorbar(fig[3, 6], hmS)
 
     save(joinpath(folder, "ztime_$(i)_$(j).png"), fig)
    
-    @info "VARIABLES ztime_$(i)_$(j) plots made"
+    @info "ztime_$(i)_$(j) figure made"
 end
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-function plot_bottom_tracer(tracer, name, bottom_z, times, plot_day, folder; colorrange = (0, 0.5), colormap = :turbo, )
 
-    #bottom_tracer = [tracer[i, j, bottom_z[i, j], time] for i = 1:size(tracer, 1), j = 1:size(tracer, 2)]
-    #fig = Figure(size = (1000, 400), fontsize = 20)
+function plot_vertical_tracer(tracer, name, z_axis, iy, time_index, folder, label; colorrange = (-1, 30), colormap = :magma)
+
+    y_tracer = [tracer[i, iy, k, time_index] == 0 ? NaN : tracer[i, iy, k, time_index] for i in 1:size(tracer, 1), k in 1:size(tracer, 3)]
+
+    fig = Figure(size = (1000, 400))
+    axis_kwargs = (xlabel = "Grid points, East ", ylabel = "Grid points, North")
+    ax = Axis(fig[1, 1]; title = "$(name), μM, day $(time_index) ", axis_kwargs...)
+    hm = heatmap!(ax, [i for i = 1:size(tracer, 1)], z_axis, y_tracer, colorrange = colorrange, colormap = colormap, nan_color = :silver)
+    Colorbar(fig[1, 2], hm)
+
+    save(joinpath(folder, "$(name)_transect_day_$(time_index).png"), fig)
+    @info "$(name)_transect_$iy plot made"
+end
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function plot_bottom_tracer(tracer, name, bottom_z, times, plot_day, folder; colorrange = (0, 0.5), colormap = :turbo)
 
     nday = plot_day*round(Int, (length(times)/365))
-    #   nday = plot_day*round(Int, ( times[end]/365))
+
     z_tracer = [tracer[i, j, bottom_z[i, j], nday] == 0 ? NaN : tracer[i, j, bottom_z[i, j], nday] for i in 1:size(tracer, 1), j in 1:size(tracer, 2)]
-   # z_tracer = [tracer[i, j, bottom_z[i, j], nday] for i = 1:size(tracer, 1), j = 1:size(tracer, 2)]
-   #z_tracer = [tracer[i, j, bottom_z[i, j], plot_day] for i = 1:size(tracer, 1), j = 1:size(tracer, 2)]    
-    fig = Figure(size = (1000, 500), fontsize = 20)
+
+    fig = Figure(size = (1000, 250), fontsize = 20)
     axis_kwargs = (xlabel = "Grid points, East ", ylabel = "Grid points, North")
-    axTRAC = Axis(fig[2, 1]; title = "$(name), mmol/m³, day $(nday) ", axis_kwargs...) 
-    hmTRAS = heatmap!([i for i = 1:size(tracer, 1)], [j for j = 1:size(tracer, 2)], z_tracer, colorrange = colorrange, colormap = colormap, nan_color = :gray)
-    Colorbar(fig[2, 2], hmTRAS)
-    save(joinpath(folder, "bottom_$(name)_day_$(plot_day).png"), fig)   
-    @info "bottom_$(name)_day_$(plot_day) plot made"    
+    axTRAS = Axis(fig[1, 1]; title = "$(name), μM, day $(nday) ", axis_kwargs...) 
+    hmTRAS = heatmap!([i for i = 1:size(tracer, 1)], [j for j = 1:size(tracer, 2)], z_tracer, colorrange = colorrange, colormap = colormap, nan_color = :silver)
+    Colorbar(fig[1, 2], hmTRAS)
+    save(joinpath(folder, "$(name)_bottom_day_$(plot_day).png"), fig)  
+    @info "$(name)_bottom_day_$(plot_day) plot made"    
 end
 
 
@@ -296,11 +326,11 @@ function plot_surface_tracer(tracer, name, iz, times, plot_day, folder; colorran
 #   nday = plot_day*round(Int, ( times[end]/365))
    z_tracer = [tracer[i, j, iz, nday] == 0 ? NaN : tracer[i, j, iz, nday] for i in 1:size(tracer, 1), j in 1:size(tracer, 2)]
 
-   fig = Figure(size = (1000, 500), fontsize = 20)
+   fig = Figure(size = (1000, 250), fontsize = 20)
     axis_kwargs = (xlabel = "Grid points, East ", ylabel = "Grid points, North")
-    axTRAC = Axis(fig[2, 1]; title = "$(name), mmol/m³, day $(nday) ", axis_kwargs...)
-    hmTRAS = heatmap!([i for i = 1:size(tracer, 1)], [j for j = 1:size(tracer, 2)], z_tracer, colorrange = colorrange, colormap = colormap, nan_color = :grey) #:gray)
-    Colorbar(fig[2, 2], hmTRAS)
+    axTRAs = Axis(fig[1, 1]; title = "$(name), μM, day $(nday) ", axis_kwargs...)
+    hmTRAS = heatmap!([i for i = 1:size(tracer, 1)], [j for j = 1:size(tracer, 2)], z_tracer, colorrange = colorrange, colormap = colormap, nan_color = :silver)
+    Colorbar(fig[1, 2], hmTRAS)
 
     save(joinpath(folder, "surface_$(name)_day_$(plot_day).png"), fig)
     @info "surface_$(name)_day_$(plot_day) plot made"    
@@ -347,5 +377,5 @@ function plot_ratio_above_thresh(variable, name, bottom_z, left_x, right_x, time
     axislegend()
 
     save(joinpath(folder, "ratio_$(name)_above_thresh_$(left_x)-$(right_x).png"), fig)
-    @info "ratio_$(name)_above_thresh_$(left_x)-$(right_x) plot made"
+    @info "$(name)_ratio_above_thresh_$(left_x)-$(right_x) plot made"
 end
